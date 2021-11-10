@@ -15,7 +15,7 @@ cd /opt/spark/bin && ./spark-class org.apache.spark.deploy.worker.Worker --webui
 
 elif [ "$SPARK_WORKLOAD" == "submit" ];
 then
-    echo "SPARK SUBMIT"
+    echo "----- Submitting Job -----"
     cd /opt/spark-apps/dist || return
     spark-submit --master "$SPARK_MASTER" \
                  --py-files jobs.zip,shared.zip \

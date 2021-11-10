@@ -11,7 +11,7 @@ class DotaRawExtractor(BaseExtractor):
         return self._extract_json(heroes_file, multiline=True)
 
     def _extract_matches(self, extra_columns=None):
-        columns = ["radiant_dire", 
+        columns = ["winner", 
                     "cluster_id", 
                     "game_mode", 
                     "game_type"]
