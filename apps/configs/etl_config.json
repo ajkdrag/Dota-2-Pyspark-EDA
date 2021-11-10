@@ -1,0 +1,4 @@
+{
+  "raw": "/opt/spark-data/raw",
+  "curated": "/opt/spark-data/curated"
+}
