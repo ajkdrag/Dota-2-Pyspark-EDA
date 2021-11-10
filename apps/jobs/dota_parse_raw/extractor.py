@@ -7,10 +7,12 @@ class DotaRawExtractor(BaseExtractor):
         super().__init__(spark, config)
      
     def _extract_heroes(self):
+        """extract heroes dataframe from json"""
         heroes_file = path.join(self.config.get("raw"), "heroes.json")
         return self._extract_json(heroes_file, multiline=True)
 
     def _extract_matches(self, extra_columns=None):
+        """extract matches dataframe from csv"""
         columns = ["winner", 
                     "cluster_id", 
                     "game_mode", 
@@ -20,14 +22,17 @@ class DotaRawExtractor(BaseExtractor):
         return self._extract_csv(matches_file, columns, header=False)
     
     def _extract_lobbies(self):
+        """extract lobbies dataframe from json"""
         lobbies_file = path.join(self.config.get("raw"), "lobbies.json")
         return self._extract_json(lobbies_file, multiline=True)
 
     def _extract_regions(self):
+        """extract regions dataframe from json"""
         regions_file = path.join(self.config.get("raw"), "regions.json")
         return self._extract_json(regions_file, multiline=True)
 
     def extract(self, entities):
+        """wrapper func to extract dataframes from source files"""
         exploded_heroes_df = self._basic_explode(self._extract_heroes(), "heroes", only_exploded=True)
         exploded_lobbies_df = self._basic_explode(self._extract_lobbies(), "lobbies", only_exploded=True)
         exploded_regions_df = self._basic_explode(self._extract_regions(), "regions", only_exploded=True)
@@ -38,7 +43,6 @@ class DotaRawExtractor(BaseExtractor):
                 .select("name")
                 )
         hero_names = [row[0] for row in id_name_df.collect()]
-
         matches_df = self._extract_matches(hero_names)
         
         dataframes = [exploded_heroes_df, exploded_lobbies_df, exploded_regions_df, matches_df]

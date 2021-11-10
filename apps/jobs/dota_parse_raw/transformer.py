@@ -1,4 +1,3 @@
-import sys
 from pyspark.sql.functions import (
         lit, 
         col,
@@ -18,6 +17,7 @@ class DotaRawTransformer:
         self.entities = []
     
     def _transform_heroes(self, heroes_df):
+        """transform skills for hero as one-hot-encoded columns"""
         exploded_skills = heroes_df.select(explode("skills").alias("exploded_skills"))        
         unique_skills = {row[0]: idx for idx, row in enumerate(exploded_skills.distinct().collect())}
         ohe_heroes_df = heroes_df.select([
@@ -32,6 +32,7 @@ class DotaRawTransformer:
         return [("ohe_heroes", ohe_heroes_df)]
     
     def _transform_matches(self, matches_df):
+        """transform matches by adding pk column, mapping column ids to values and merge one-hot-encoded columns"""
         pk_added_matches_df = matches_df.withColumn("match_id", monotonically_increasing_id())
         mapping = {"-1": "dire", "1": "radiant"}
         mapping_rdd = create_map([lit(item) for item in chain(*mapping.items())])
@@ -51,13 +52,16 @@ class DotaRawTransformer:
                                 )
         return [("match_details", match_details_df), ("merged_hero_ids", merged_hero_ids_df)]
     
-    def _transform_regions(self, lobbies_df):
-        return [("regions", lobbies_df.toDF("cluster_id", "region"))]
+    def _transform_regions(self, regions_df):
+        """rename columns for cluster regions"""
+        return [("regions", regions_df.toDF("cluster_id", "region"))]
 
     def _transform_lobbies(self, lobbies_df):
+        """transorm lobbies"""
         return [("lobbies", lobbies_df)]
     
     def _create_match_hero_xlkp_df(self, merged_hero_ids_df, ohe_heroes_df):
+        """map hero ids to hero names and denormalize the dataframe"""
         id_name_df = (
                 ohe_heroes_df 
                 .sort("id")
@@ -79,6 +83,7 @@ class DotaRawTransformer:
         return [("match_hero_names", filtered_match_hero_names_df)]
     
     def _lkp_match_lobby(self, match_details_df, lobbies_df):
+        """join lobby and matches to get lobby name for each match"""
         lkp_df = lobbies_df.withColumn("id", col("id").cast("int") + 1) 
         match_details_df = match_details_df.withColumn("game_mode", col("game_mode").cast("int"))
         match_details_df = (
@@ -89,6 +94,7 @@ class DotaRawTransformer:
         return [("match_details", match_details_df)]
     
     def simple_transform(self, entities):
+        """func for transormations that are self-sustained i.e no joins/lookups"""
         names_and_dataframes = [
                         *self._transform_heroes(entities["heroes"]), 
                         *self._transform_lobbies(entities["lobbies"]),
@@ -98,6 +104,7 @@ class DotaRawTransformer:
         entities.update({name: dataframe for name, dataframe in names_and_dataframes})
     
     def transform(self, entities):
+        """wrapper func for transforming dataframes"""
         self.simple_transform(entities)
         match_details_df = entities["match_details"]
         merged_hero_ids_df = entities["merged_hero_ids"]
