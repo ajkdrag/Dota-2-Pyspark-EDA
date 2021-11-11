@@ -11,12 +11,13 @@ class ConfigParser:
 
     @staticmethod
     def read_json(config_path: Path):
+        """load config from json"""
         with config_path.open() as stream:
             return json.load(stream)
 
     def parse_config(self):
+        """load base config and override with job config"""
         base_config = ConfigParser.read_json(self.base_config_path)
         config = ConfigParser.read_json(self.config_path)
         base_config.update(config)
         return base_config
-        
