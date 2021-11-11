@@ -21,4 +21,3 @@ class ConfigParser:
         config = ConfigParser.read_json(self.config_path)
         base_config.update(config)
         return base_config
-        

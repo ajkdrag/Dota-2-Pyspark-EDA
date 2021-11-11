@@ -1,6 +1,7 @@
 import argparse
 import importlib
 import findspark
+
 findspark.init()
 
 from pyspark.sql import SparkSession
@@ -11,10 +12,12 @@ def _parse_opt():
     """parse passed arguments"""
     parser = argparse.ArgumentParser()
     parser.add_argument("--job", required=True, help="job name to run")
-    parser.add_argument("--config", default="configs/config.json", help="config file the job should use")
+    parser.add_argument(
+        "--config", default="configs/config.json", help="config file the job should use"
+    )
     opt = parser.parse_args()
     return opt
-    
+
 
 def _parse_config(config_file):
     """parse configuration file"""
@@ -30,12 +33,12 @@ def _init_spark(config):
 def main():
     """entrypoint function"""
     opt = _parse_opt()
-    config = _parse_config(opt.config)    
+    config = _parse_config(opt.config)
     spark = _init_spark(config)
-    
+
     job_module = importlib.import_module(f"jobs.{opt.job}.entrypoint")
     getattr(job_module, "run")(spark, config)
-    
+
 
 if __name__ == "__main__":
     main()
