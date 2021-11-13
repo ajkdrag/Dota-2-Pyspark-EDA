@@ -4,7 +4,7 @@
 if [ "$SPARK_WORKLOAD" == "master" ]; then
 	SPARK_MASTER_HOST=$(hostname)
 	export SPARK_MASTER_HOST
-	cd /opt/spark/bin && ./spark-class org.apache.spark.deploy.master.Master --ip "$SPARK_MASTER_HOST" --port "$(SPARK_MASTER_PORT)" --webui-port "$(SPARK_MASTER_WEBUI_PORT)" >>"$(SPARK_MASTER_LOG)"
+	cd /opt/spark/bin && ./spark-class org.apache.spark.deploy.master.Master --ip "$SPARK_MASTER_HOST" --port "$SPARK_MASTER_PORT" --webui-port "$SPARK_MASTER_WEBUI_PORT" >>"$SPARK_MASTER_LOG"
 
 elif [ "$SPARK_WORKLOAD" == "worker" ]; then
 	# When the spark work_load is worker run class org.apache.spark.deploy.master.Worker
