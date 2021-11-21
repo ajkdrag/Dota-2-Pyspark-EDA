@@ -1,5 +1,5 @@
 from jobs.dota_parse_curated.extractor import DotaCuratedExtractor
-from jobs.dota_parse_curated.insights import get_all_insights 
+from jobs.dota_parse_curated.analyze import get_all_insights 
 
 
 def run(spark, config):

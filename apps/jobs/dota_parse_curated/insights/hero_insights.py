@@ -46,49 +46,42 @@ def top_k_heroes_with_highest_win_rates(match_hero_names_df, match_details_df, k
 
 
 def top_k_heroes_in_most_wins(match_hero_names_df, match_details_df, k=10):
-    return (
+    return top_k_most_picked_heroes(
         match_hero_names_df.join(
             match_details_df,
             on=[
                 match_hero_names_df.match_id == match_details_df.match_id,
                 match_hero_names_df.team == match_details_df.winner,
             ],
-        )
-        .groupBy("hero")
-        .count()
-        .orderBy(F.desc("count"))
-        .limit(k)
+        ),
+        k=k,
     )
 
 
-def get_all_insights(entities):
+def get_all_hero_insights(entities):
     match_hero_names_df = entities["match_hero_names"]
     match_details_df = entities["match_details"]
 
     top_k_most_picked_heroes_df = top_k_most_picked_heroes(match_hero_names_df)
-    print("top_k_most_picked_heroes")
-    top_k_most_picked_heroes_df.show()
 
     top_k_most_picked_heroes_radiant_df = top_k_most_picked_heroes_radiant(
         match_hero_names_df
     )
-    print("top_k_most_picked_heroes_radiant")
-    top_k_most_picked_heroes_radiant_df.show()
 
     top_k_most_picked_heroes_dire_df = top_k_most_picked_heroes_dire(
         match_hero_names_df
     )
-    print("top_k_most_picked_heroes_dire")
-    top_k_most_picked_heroes_dire_df.show()
 
     top_k_heroes_in_most_wins_df = top_k_heroes_in_most_wins(
         match_hero_names_df, match_details_df
     )
-    print("top_k_heroes_in_most_wins")
-    top_k_heroes_in_most_wins_df.show()
 
     top_k_heroes_with_highest_win_rates_df = top_k_heroes_with_highest_win_rates(
         match_hero_names_df, match_details_df
     )
-    print("top_k_heroes_with_highest_win_rates")
-    top_k_heroes_with_highest_win_rates_df.show()
+
+    entities["insight_most_picked_heroes"] = top_k_most_picked_heroes_df
+    entities["insight_heroes_in_most_wins"] = top_k_heroes_in_most_wins_df
+    entities["insight_most_picked_heroes_dire"] = top_k_most_picked_heroes_dire_df
+    entities["insight_most_picked_heroes_radiant"] = top_k_most_picked_heroes_radiant_df
+    entities["insight_heroes_with_highest_wr"] = top_k_heroes_with_highest_win_rates_df
